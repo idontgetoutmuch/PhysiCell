@@ -1,0 +1,79 @@
+cabal-version:       2.1
+name:                PhysiCell
+version:             0.0.1
+synopsis:            Interface to PhysiCell
+description:         An interface to PhysiCell: an Open Source Physics-Based Cell Simulator for 3-D Multicellular Systems
+license:             BSD-3-Clause
+license-file:        LICENSE
+author:              Dominic Steinitz
+maintainer:          Dominic Steinitz
+copyright:           Dominic Steinitz 2020
+category:            Math
+build-type:          Simple
+extra-source-files:  ChangeLog.md, README.md
+
+
+library
+  build-depends:       base >=4.10,
+                       inline-c >=0.6
+  extra-libraries:
+  other-extensions:
+  hs-source-dirs:      src
+  exposed-modules:     Numeric.PhysiCell
+  other-modules:
+  cxx-sources:         ../../BioFVM/BioFVM_vector.cpp
+                       ../../BioFVM/BioFVM_mesh.cpp
+                       ../../BioFVM/BioFVM_microenvironment.cpp
+                       ../../BioFVM/BioFVM_solvers.cpp
+                       ../../BioFVM/BioFVM_matlab.cpp
+                       ../../BioFVM/BioFVM_utilities.cpp
+                       ../../BioFVM/BioFVM_basic_agent.cpp
+                       ../../BioFVM/BioFVM_MultiCellDS.cpp
+                       ../../BioFVM/BioFVM_agent_container.cpp
+                       ../../BioFVM/BioFVM_vector.h
+                       ../../BioFVM/BioFVM_mesh.h
+                       ../../BioFVM/BioFVM_microenvironment.h
+                       ../../BioFVM/BioFVM_solvers.h
+                       ../../BioFVM/BioFVM_matlab.h
+                       ../../BioFVM/BioFVM_utilities.h
+                       ../../BioFVM/BioFVM_basic_agent.h
+                       ../../BioFVM/BioFVM_MultiCellDS.h
+                       ../../BioFVM/BioFVM_agent_container.h
+                       ../../core/PhysiCell_phenotype.cpp
+                       ../../core/PhysiCell_cell_container.cpp
+                       ../../core/PhysiCell_standard_models.cpp
+                       ../../core/PhysiCell_cell.cpp
+                       ../../core/PhysiCell_custom.cpp
+                       ../../core/PhysiCell_utilities.cpp
+                       ../../core/PhysiCell_constants.cpp
+                       ../../core/PhysiCell_phenotype.h
+                       ../../core/PhysiCell_cell_container.h
+                       ../../core/PhysiCell_standard_models.h
+                       ../../core/PhysiCell_cell.h
+                       ../../core/PhysiCell_custom.h
+                       ../../core/PhysiCell_utilities.h
+                       ../../core/PhysiCell_constants.h
+                       ../../modules/PhysiCell_SVG.cpp
+                       ../../modules/PhysiCell_pathology.cpp
+                       ../../modules/PhysiCell_MultiCellDS.cpp
+                       ../../modules/PhysiCell_various_outputs.cpp
+                       ../../modules/PhysiCell_pugixml.cpp
+                       ../../modules/PhysiCell_settings.cpp
+                       ../../modules/PhysiCell_SVG.h
+                       ../../modules/PhysiCell_pathology.h
+                       ../../modules/PhysiCell_MultiCellDS.h
+                       ../../modules/PhysiCell_various_outputs.h
+                       ../../modules/PhysiCell_pugixml.h
+                       ../../modules/PhysiCell_settings.h
+
+  cxx-options:         -march=native
+                       -O3
+                       -fomit-frame-pointer
+                       -- Causes "error: unknown FP unit 'both'"
+                       -- -mfpmath=both
+                       -fopenmp
+                       -m64
+                       -std=c++11
+  default-language:    Haskell2010
+  default-extensions:
+  ghc-options:         -Wall
