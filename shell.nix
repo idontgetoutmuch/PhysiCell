@@ -22,5 +22,6 @@ mkShell {
     gcc
     ghc
     openmp
+    openmpi
   ];
 }
