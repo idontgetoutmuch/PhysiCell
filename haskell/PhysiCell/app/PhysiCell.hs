@@ -5,7 +5,7 @@
 {-# LANGUAGE TemplateHaskell     #-}
 {-# LANGUAGE OverloadedStrings   #-}
 
-module Numeric.PhysiCell where
+module Main where
 
 import qualified Language.C.Inline.Cpp as C
 
@@ -26,8 +26,8 @@ C.include "<math.h>"
 C.include "<stdio.h>"
 C.include "Main.h"
 
-C.include "../../../../core/PhysiCell.h"
-C.include "../../../../modules/PhysiCell_standard_modules.h"
+C.include "../../../core/PhysiCell.h"
+C.include "../../../modules/PhysiCell_standard_modules.h"
 
 C.include "heterogeneity.h"
 
@@ -38,8 +38,8 @@ C.include "heterogeneity.h"
 --   alignment _ = error "alignment"
 
 
-runPhysiCell :: IO ()
-runPhysiCell = do
+main :: IO ()
+main = do
   flag <- [C.block|  bool {
           XML_status = false;
           XML_status = load_PhysiCell_config_file( "./PhysiCell_settings.xml" );
@@ -57,6 +57,17 @@ runPhysiCell = do
           Cell_Container* cell_container = create_cell_container_for_microenvironment( microenvironment, mechanics_voxel_size );
           create_cell_types();
           setup_tissue();
+
+          set_save_biofvm_mesh_as_matlab( true );
+          set_save_biofvm_data_as_matlab( true );
+          set_save_biofvm_cell_data( true );
+          set_save_biofvm_cell_data_as_custom_matlab( true );
+
+          char filename[1024];
+          sprintf( filename , "%s/initial" , PhysiCell_settings.folder.c_str() );
+          save_PhysiCell_to_MultiCellDS_xml_pugi( filename , microenvironment , PhysiCell_globals.current_time );
+
+          microenvironment.simulate_diffusion_decay( diffusion_dt );
         } |]
 
   print "Tests finished"
