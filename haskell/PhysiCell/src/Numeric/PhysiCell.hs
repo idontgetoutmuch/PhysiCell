@@ -28,7 +28,7 @@ C.include "Main.h"
 C.include "../../../../core/PhysiCell.h"
 C.include "../../../../modules/PhysiCell_standard_modules.h"
 
-C.include "../../../../sample_projects/heterogeneity/custom_modules/heterogeneity.h"
+C.include "heterogeneity.h"
 
 -- instance Storable UserData where
 --   poke _ _    = error "poke"
@@ -38,4 +38,10 @@ C.include "../../../../sample_projects/heterogeneity/custom_modules/heterogeneit
 
 runPhysiCell :: IO ()
 runPhysiCell = do
-  print "Hello world"
+  flag <- [C.block|  bool {
+          XML_status = false;
+          XML_status = load_PhysiCell_config_file( "./PhysiCell_settings.xml" );
+          return XML_status;
+        } |] :: IO C.CBool
+  print flag
+
