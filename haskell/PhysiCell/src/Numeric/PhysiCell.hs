@@ -16,6 +16,7 @@ C.context $ C.cppCtx `mappend` C.cppTypePairs [
   ]
 
 C.include "<iostream>"
+C.include "<omp.h>"
 C.include "<vector>"
 C.include "<array>"
 C.include "<tuple>"
@@ -36,12 +37,22 @@ C.include "heterogeneity.h"
 --   sizeOf _    = error "sizeOf"
 --   alignment _ = error "alignment"
 
+
 runPhysiCell :: IO ()
 runPhysiCell = do
   flag <- [C.block|  bool {
           XML_status = false;
           XML_status = load_PhysiCell_config_file( "./PhysiCell_settings.xml" );
           return XML_status;
-        } |] :: IO C.CBool
+        } |]
   print flag
 
+  [C.block| void {
+          using namespace PhysiCell;
+          std::cout << "\nThreads: " << PhysiCell_settings.omp_num_threads << std::endl;
+          SeedRandom();
+          std::string time_units = "min";
+          setup_microenvironment();
+        } |]
+
+  print "Tests finished"

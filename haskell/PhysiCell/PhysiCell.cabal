@@ -67,6 +67,8 @@ library
                        ../../modules/PhysiCell_various_outputs.h
                        ../../modules/PhysiCell_pugixml.h
                        ../../modules/PhysiCell_settings.h
+                       src/heterogeneity.cpp
+                       src/heterogeneity.h
 
   cxx-options:         -march=native
                        -O3
