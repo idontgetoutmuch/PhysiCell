@@ -72,17 +72,41 @@ using namespace BioFVM;
 using namespace PhysiCell;
 
 // custom cell phenotype function to scale immunostimulatory factor with hypoxia
-void tumor_cell_phenotype_with_oncoprotein( Cell* pCell, Phenotype& phenotype, double dt );
+void tumor_cell_phenotype_with_therapy( Cell* pCell, Phenotype& phenotype, double dt ); // done
+
+extern Cell_Definition cargo_cell;
+extern Cell_Definition worker_cell;
+
+void create_cargo_cell_type( void );  //done
+void create_worker_cell_type( void ); // done
 
 // set the tumor cell properties, then call the function
 // to set up the tumor cells
-void create_cell_types( void );
+void create_cell_types( void ); // done
 
 void setup_tissue();
 
+void introduce_biorobots( void );  // done
+
 // set up the microenvironment to include the immunostimulatory factor
-void setup_microenvironment( void );  // done
+void setup_microenvironment( void );   // done
 
-std::vector<std::string> heterogeneity_coloring_function( Cell* );
+std::vector<std::string> cancer_biorobots_coloring_function( Cell* ); // done
 
-bool XML_status;
+// cell rules for extra elastic adhesion
+
+void attach_cells( Cell* pCell_1, Cell* pCell_2 ); // done
+void dettach_cells( Cell* pCell_1 , Cell* pCell_2 ); // done
+
+void add_elastic_velocity( Cell* pActingOn, Cell* pAttachedTo , double elastic_constant ); // done
+void extra_elastic_attachment_mechanics( Cell* pCell, Phenotype& phenotype, double dt ); // done
+
+
+bool worker_cell_attempt_attachment( Cell* pWorker, Cell* pCargo , double dt ); // done
+
+
+void worker_cell_rule( Cell* pCell, Phenotype& phenotype, double dt ); // at mechanics time scale
+void worker_cell_motility( Cell* pCell, Phenotype& phenotype, double dt );
+
+void cargo_cell_phenotype_rule( Cell* pCell , Phenotype& phenotype , double dt ); // done
+void cargo_cell_rule( Cell* pCell, Phenotype& phenotype, double dt ); // done
