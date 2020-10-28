@@ -8,12 +8,15 @@
 module Numeric.PhysiCell where
 
 import qualified Language.C.Inline.Cpp as C
+import           Foreign.Ptr (Ptr)
 import           Control.Monad
 
-data UserData;
+data Test;
+data Microenvironment;
 
 C.context $ C.cppCtx `mappend` C.cppTypePairs [
-  ("UserData"  , [t|UserData|])
+    ("Test::Test", [t|Test|])
+  , ("BioFVM::Microenvironment", [t|Microenvironment|])
   ]
 
 C.include "<iostream>"
@@ -30,6 +33,7 @@ C.include "Main.h"
 C.include "../../../../core/PhysiCell.h"
 C.include "../../../../modules/PhysiCell_standard_modules.h"
 
+-- FIXME
 C.include "heterogeneity.h"
 
 -- instance Storable UserData where
@@ -49,7 +53,7 @@ runPhysiCell = do
 
   when (flag == 0) (error "Problem with config file")
 
-  [C.block| void {
+  pt <- [C.block| BioFVM::Microenvironment* {
           using namespace PhysiCell;
           std::cout << "\nThreads: " << PhysiCell_settings.omp_num_threads << std::endl;
           SeedRandom();
@@ -76,6 +80,27 @@ runPhysiCell = do
 
           static int chemoattractant_index  = microenvironment.find_density_index( "chemoattractant" );
           std::cout << "\nChemoattractant Index: " << chemoattractant_index << std::endl;
+
+          display_simulation_status( std::cout );
+
+          sprintf( filename , "%s/output%08u" , PhysiCell_settings.folder.c_str(),  PhysiCell_globals.full_output_index );
+
+          save_PhysiCell_to_MultiCellDS_xml_pugi( filename , microenvironment , PhysiCell_globals.current_time );
+
+          microenvironment.simulate_diffusion_decay( diffusion_dt );
+
+          ((Cell_Container *)microenvironment.agent_container)->update_all_cells( PhysiCell_globals.current_time );
+
+          PhysiCell_globals.current_time += diffusion_dt;
+
+          display_simulation_status( std::cout );
+
+          return &microenvironment;
+        } |] :: IO (Ptr Microenvironment)
+
+  [C.block| void {
+          static int oxygen_index  = $(BioFVM::Microenvironment* pt)->find_density_index( "oxygen" );
+          std::cout << "\nOxygen Index: " << oxygen_index << std::endl;
         } |]
 
   print "Tests finished"
