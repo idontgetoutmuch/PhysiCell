@@ -16,11 +16,13 @@ extra-source-files:  ChangeLog.md, README.md
 library
   build-depends:       base >=4.10,
                        inline-c >=0.9,
-                       inline-c-cpp>=0.4
+                       inline-c-cpp>=0.4,
+                       vector>=0.12
   extra-libraries:
   other-extensions:
   hs-source-dirs:      src
   exposed-modules:     Numeric.PhysiCell
+                       Numeric.GbmStromaGrowth
   other-modules:
   cxx-sources:         ../../BioFVM/BioFVM_vector.cpp
                        ../../BioFVM/BioFVM_mesh.cpp
@@ -67,8 +69,6 @@ library
                        ../../modules/PhysiCell_various_outputs.h
                        ../../modules/PhysiCell_pugixml.h
                        ../../modules/PhysiCell_settings.h
-                       src/cancer_biorobots.cpp
-                       src/cancer_biorobots.h
 
   cxx-options:         -march=native
                        -O3
@@ -85,6 +85,37 @@ library
 executable cancer_biorobots
   main-is:             PhysiCell.hs
   hs-source-dirs:      app
+  cxx-sources:         src/cancer_biorobots.cpp
+                       src/cancer_biorobots.h
+  cxx-options:         -march=native
+                       -O3
+                       -fomit-frame-pointer
+                       -- Causes "error: unknown FP unit 'both'"
+                       -- -mfpmath=both
+                       -fopenmp
+                       -m64
+                       -std=c++11
+  build-depends:       base >=4 && <5
+                     , PhysiCell
+                     , inline-c-cpp
+  default-language:    Haskell2010
+  ghc-options:
+  extra-libraries:
+  ld-options:          -fopenmp
+
+executable GBM_stroma_growth
+  main-is:             GbmStromaGrowth.hs
+  hs-source-dirs:      app
+  cxx-sources:         src/GBM_stroma_growth.cpp
+                       src/GBM_stroma_growth.h
+  cxx-options:         -march=native
+                       -O3
+                       -fomit-frame-pointer
+                       -- Causes "error: unknown FP unit 'both'"
+                       -- -mfpmath=both
+                       -fopenmp
+                       -m64
+                       -std=c++11
   build-depends:       base >=4 && <5
                      , PhysiCell
                      , inline-c-cpp

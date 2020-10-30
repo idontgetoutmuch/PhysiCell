@@ -5,8 +5,8 @@
 {-# LANGUAGE TemplateHaskell     #-}
 {-# LANGUAGE OverloadedStrings   #-}
 
-module Numeric.PhysiCell (
-  runPhysiCell
+module Numeric.GbmStromaGrowth (
+  runGbmStromaGrowth
   ) where
 
 import qualified Language.C.Inline.Cpp as C
@@ -38,20 +38,14 @@ C.include "<stdio.h>"
 C.include "../../../../core/PhysiCell.h"
 C.include "../../../../modules/PhysiCell_standard_modules.h"
 
--- FIXME
-C.include "../cancer_biorobots.h"
+C.include "../GBM_stroma_growth.h"
 
--- instance Storable UserData where
---   poke _ _    = error "poke"
---   peek _      = error "peek"
---   sizeOf _    = error "sizeOf"
---   alignment _ = error "alignment"
-
-runPhysiCell :: IO ()
-runPhysiCell = do
+runGbmStromaGrowth :: IO ()
+runGbmStromaGrowth = do
   flag <- [C.block|  bool {
+          using namespace PhysiCell;
           static bool XML_status = false;
-          XML_status = load_PhysiCell_config_file( "./cancer_biorobots.xml" );
+          XML_status = load_PhysiCell_config_file( "./GBM_stroma_growth.xml" );
           return XML_status;
         } |]
   print flag
@@ -67,7 +61,7 @@ runPhysiCell = do
           double mechanics_voxel_size = 30;
           Cell_Container* cell_container = create_cell_container_for_microenvironment( microenvironment, mechanics_voxel_size );
           create_cell_types();
-          setup_tissue();
+          setup_tissue_circle();
 
           set_save_biofvm_mesh_as_matlab( true );
           set_save_biofvm_data_as_matlab( true );
