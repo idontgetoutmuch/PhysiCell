@@ -13,17 +13,20 @@ import qualified Language.C.Inline.Cpp as C
 import           Foreign.Ptr (Ptr)
 import           Control.Monad
 
+import           Data.Int
+
 import qualified Data.Vector as V
 import qualified Data.Vector.Storable as VS
 import qualified Data.Vector.Storable.Mutable as VSM
 
 
-data Test;
-data Microenvironment;
+data Test
+data Microenvironment
+data Cells
 
 C.context $ C.cppCtx `mappend` C.cppTypePairs [
-    ("Test::Test", [t|Test|])
-  , ("BioFVM::Microenvironment", [t|Microenvironment|])
+    ("BioFVM::Microenvironment", [t|Microenvironment|])
+  , ("Test::Cells", [t|Cells|])
   ]
 
 C.include "<iostream>"
@@ -37,11 +40,20 @@ C.include "<stdio.h>"
 
 C.include "../../../../core/PhysiCell.h"
 C.include "../../../../modules/PhysiCell_standard_modules.h"
+C.include "./test.h"
 
 C.include "../GBM_stroma_growth.h"
 
+
+numCancerCells :: Ptr Cells -> IO C.CInt
+numCancerCells pt = do
+  [C.block| int {
+   return (*$(Test::Cells* pt)).size();
+ } |]
+
 runGbmStromaGrowth :: IO ()
 runGbmStromaGrowth = do
+
   flag <- [C.block|  bool {
           using namespace PhysiCell;
           static bool XML_status = false;
@@ -54,11 +66,27 @@ runGbmStromaGrowth = do
 
   pt <- [C.block| BioFVM::Microenvironment* {
           using namespace PhysiCell;
+
+          // OpenMP setup
+	  omp_set_num_threads(PhysiCell_settings.omp_num_threads);
           std::cout << "\nThreads: " << PhysiCell_settings.omp_num_threads << std::endl;
+
+          // From PhysiCell but not in GBM
           SeedRandom();
+
+          // time setup
           std::string time_units = "min";
+
+          /* Microenvironment setup */
           setup_microenvironment();
+          double last_time_updated = 0; // keep tabs of the last time the radius was increased
+          double number_of_times_updated = 1; // the number of times the radius has been increased
+
+          /* PhysiCell setup */
+
+          // set mechanics voxel size, and match the data structure to BioFVM
           double mechanics_voxel_size = 30;
+
           Cell_Container* cell_container = create_cell_container_for_microenvironment( microenvironment, mechanics_voxel_size );
           create_cell_types();
           setup_tissue_circle();
@@ -72,15 +100,26 @@ runGbmStromaGrowth = do
           sprintf( filename , "%s/initial" , PhysiCell_settings.folder.c_str() );
           save_PhysiCell_to_MultiCellDS_xml_pugi( filename , microenvironment , PhysiCell_globals.current_time );
 
+          PhysiCell_SVG_options.length_bar = 200;
+
+          // for simplicity, set a pathology coloring function
+
+          std::vector<std::string> (*cell_coloring_function)(Cell*) = colouring;
+
+          sprintf( filename , "%s/initial.svg" , PhysiCell_settings.folder.c_str() );
+          SVG_plot( filename , microenvironment, 0.0 , PhysiCell_globals.current_time, cell_coloring_function );
+
           microenvironment.simulate_diffusion_decay( diffusion_dt );
 
           static int oxygen_index  = microenvironment.find_density_index( "oxygen" );
           std::cout << "\nOxygen Index: " << oxygen_index << std::endl;
 
-          static int chemoattractant_index  = microenvironment.find_density_index( "chemoattractant" );
-          std::cout << "\nChemoattractant Index: " << chemoattractant_index << std::endl;
+          static int wall_index  = microenvironment.find_density_index( "wall" );
+          std::cout << "\nWall Index: " << wall_index << std::endl;
 
           display_simulation_status( std::cout );
+
+	  std::cout << "total agents: " << all_cells->size() << std::endl;
 
           sprintf( filename , "%s/output%08u" , PhysiCell_settings.folder.c_str(),  PhysiCell_globals.full_output_index );
 
@@ -116,4 +155,12 @@ runGbmStromaGrowth = do
         } |]
 
   print xSz
+
+  rt <- [C.block| Test::Cells* {
+         return all_cells;
+        } |] :: IO (Ptr Cells)
+
+  nCanCells <- numCancerCells rt
+
+  print nCanCells
   print "Tests finished"

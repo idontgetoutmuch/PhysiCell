@@ -86,6 +86,8 @@ runPhysiCell = do
           static int chemoattractant_index  = microenvironment.find_density_index( "chemoattractant" );
           std::cout << "\nChemoattractant Index: " << chemoattractant_index << std::endl;
 
+	  std::cout << "total agents: " << all_cells->size() << std::endl;
+
           display_simulation_status( std::cout );
 
           sprintf( filename , "%s/output%08u" , PhysiCell_settings.folder.c_str(),  PhysiCell_globals.full_output_index );
