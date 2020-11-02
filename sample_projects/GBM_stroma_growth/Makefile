@@ -79,6 +79,9 @@ PhysiCell_utilities.o: ./core/PhysiCell_utilities.cpp
 PhysiCell_custom.o: ./core/PhysiCell_custom.cpp
 	$(COMPILE_COMMAND) -c ./core/PhysiCell_custom.cpp 
 	
+PhysiCell_constants.o: ./core/PhysiCell_constants.cpp
+	$(COMPILE_COMMAND) -c ./core/PhysiCell_constants.cpp 
+	
 # BioFVM core components (needed by PhysiCell)
 	
 BioFVM_vector.o: ./BioFVM/BioFVM_vector.cpp
