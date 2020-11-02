@@ -121,6 +121,15 @@ heterogeneity-sample:
 	cp ./config/PhysiCell_settings.xml ./config/PhysiCell_settings-backup.xml 
 	cp ./sample_projects/heterogeneity/config/* ./config/
 	
+GBM_stroma_growth-sample:
+	cp ./sample_projects/GBM_stroma_growth/custom_modules/* ./custom_modules/
+	touch main.cpp && cp main.cpp main-backup.cpp
+	cp ./sample_projects/GBM_stroma_growth/main-GBM_stroma_growth.cpp ./main.cpp 
+	cp Makefile Makefile-backup
+	cp ./sample_projects/GBM_stroma_growth/Makefile .
+	cp ./config/PhysiCell_settings.xml ./config/PhysiCell_settings-backup.xml 
+	cp ./sample_projects/GBM_stroma_growth/config/* ./config/
+	
 cancer-immune-sample:
 	cp ./sample_projects/cancer_immune/custom_modules/* ./custom_modules/
 	touch main.cpp && cp main.cpp main-backup.cpp
